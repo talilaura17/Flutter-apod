@@ -1,5 +1,7 @@
+import 'package:first_flutter_project01/Pages/screen_arguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../models/screen_arguments.dart';
 
 import 'main_page.dart';
 
@@ -16,13 +18,14 @@ class _CalendarPageState extends State<CalendarPage> {
     return Center(
       child: TextButton(
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Scaffold(
-                  appBar: AppBar(
-                    title: const Text('Lunation Matrix'),
-                  ),
-                  body: const MainPage());
-            }));
+            Navigator.pushNamed(
+              context,
+              ExtractArgumentsScreen.routeName,
+              arguments: ScreenArguments(
+                'Extract Arguments Screen',
+                'This message is extracted in the build method.',
+              ), // 指定要傳輸的參數
+            );
           },
           child: const Text('Navigate to MyHome Page')),
     );

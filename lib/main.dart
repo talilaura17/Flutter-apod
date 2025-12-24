@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'Pages/calendar_page.dart';
 import 'Pages/favorite_page.dart';
 import 'Pages/main_page.dart';
+import 'Pages/screen_arguments.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+
+      routes: {
+        ExtractArgumentsScreen.routeName: (context) =>
+        const ExtractArgumentsScreen(),
+      },
+
       home: const MyHomePage(),
+
     );
   }
 }
@@ -69,8 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
             label: '首頁',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '設定',
+            icon: Icon(Icons.favorite),
+            label: '我的收藏',
           ),
         ],
         currentIndex: _selectedIndex,
