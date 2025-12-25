@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../keys/api_key.dart';
 import '../models/ApodData.dart';
+import '../widgets/astro_picture.dart';
 
 class MainPage extends StatefulWidget{
   const MainPage({super.key});
@@ -17,12 +18,20 @@ class MainPage extends StatefulWidget{
 class _MainPageState extends State<MainPage> {
   final String apodUrl = 'https://api.nasa.gov/planetary/apod';
 
+  late TextEditingController _controller = TextEditingController();
+
   @override
   void initState() {
     _fetchDailyApodData(); // 在頁面生成時取得APOD 資訊
     super.initState();
   }
 
+  @override
+  void dispose(){
+    super.dispose();
+  }
+
+  // 取得網路資料(使用api key)
   Future<ApodData?> _fetchDailyApodData() async {
     Uri url = Uri.parse('$apodUrl?api_key=$apiKey&thumbs=true');
     final response = await http.get(url, headers: {
@@ -44,66 +53,13 @@ class _MainPageState extends State<MainPage> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             ApodData? data = snapshot.data;
-            return Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    data != null ? data.title : '',
-                    style: const TextStyle(
-                        fontSize: 30, fontWeight: FontWeight.w500),
-                  ),
-                ),
-                Stack(
-                  children: [
-                    SizedBox(
-                      width: deviceScreen.width,
-                      child: data != null
-                          ? Image.network(data.url, frameBuilder:
-                          (context, child, frame, wasSynchronouslyLoaded) {
-                        if (wasSynchronouslyLoaded) {
-                          // 同步載入（快取）直接顯示
-                          return child;
-                        }
-                        return AnimatedOpacity(
-                          // 非同步載入 - 淡入動畫
-                          opacity: frame == null ? 0 : 1,
-                          duration: const Duration(seconds: 1),
-                          curve: Curves.easeOut,
-                          child: child,
-                        );
-                      })
-                          : SizedBox(
-                        width: deviceScreen.width,
-                        height: deviceScreen.width,
-                        child: const Center(
-                            child: Text(
-                              '圖片載入錯誤',
-                              style:
-                              TextStyle(color: Colors.red, fontSize: 30),
-                            )),
-                      ),
-                    ),
-                    Positioned(
-                      top: 10.0,
-                      right: 10.0,
-                      child: ElevatedButton(
-                          onPressed: () {
-                            print('add to favorite');
-                          },
-                          child: const Text('favorite')),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    data != null ? data.desc : '',
-                    style:
-                    const TextStyle(fontSize: 16, color: Colors.blueGrey),
-                  ),
-                ),
-              ],
+            //
+            return AstroPicture(
+              title: data?.title ?? '',
+              pictureUrl: data?.url ?? '',
+              desc: data?.desc ?? '',
+              note: 'Place your note here!', // 待日後將儲存的筆記放進來
+              isFavorite: false,
             );
           }
           if (snapshot.hasError) {

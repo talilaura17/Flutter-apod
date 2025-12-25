@@ -1,4 +1,5 @@
 import 'package:first_flutter_project01/Pages/screen_arguments.dart';
+import 'package:first_flutter_project01/Pages/test_text_input_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/screen_arguments.dart';
@@ -20,7 +21,7 @@ class _CalendarPageState extends State<CalendarPage> {
           onPressed: () {
             Navigator.pushNamed(
               context,
-              ExtractArgumentsScreen.routeName,
+              MyStatefulWidget.routeName,
               arguments: ScreenArguments(
                 'Extract Arguments Screen',
                 'This message is extracted in the build method.',

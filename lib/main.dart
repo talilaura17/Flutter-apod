@@ -4,6 +4,7 @@ import 'Pages/calendar_page.dart';
 import 'Pages/favorite_page.dart';
 import 'Pages/main_page.dart';
 import 'Pages/screen_arguments.dart';
+import 'Pages/test_text_input_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,9 +22,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
 
+      // 使用於 Navigator.pushNamed 導頁
       routes: {
         ExtractArgumentsScreen.routeName: (context) =>
         const ExtractArgumentsScreen(),
+
+        MyStatefulWidget.routeName: (context) =>
+        const MyStatefulWidget(),
       },
 
       home: const MyHomePage(),
