@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/astro_picture.dart';
-import 'main_page.dart';
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});

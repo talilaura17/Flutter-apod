@@ -29,7 +29,7 @@ class AstroPicture extends StatefulWidget {
 class _AstroPictureState extends State<AstroPicture> {
   final String apodUrl = 'https://api.nasa.gov/planetary/apod';
 
-  late TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller = TextEditingController();
   NoteType _noteType = NoteType.editable;
 
   @override

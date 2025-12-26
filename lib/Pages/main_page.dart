@@ -18,8 +18,6 @@ class MainPage extends StatefulWidget{
 class _MainPageState extends State<MainPage> {
   final String apodUrl = 'https://api.nasa.gov/planetary/apod';
 
-  late TextEditingController _controller = TextEditingController();
-
   @override
   void initState() {
     _fetchDailyApodData(); // 在頁面生成時取得APOD 資訊
