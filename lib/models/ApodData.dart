@@ -8,9 +8,9 @@ class ApodData {
   ApodData(this.title, this.url, this.mediaType, this.desc, this.date);
 
   ApodData.fromJson(Map<String, dynamic> json)
-      : title = json['title'],
-        url = json['hdurl'],
-        mediaType = json['media_type'],
+      : title = (json['title'] as String?) ?? '',
+        url = (json['hdurl'] as String?) ?? '' ,
+        mediaType = (json['media_type'] as String?) ?? '',
         desc = json['explanation'],
         date = json['date'];
 
