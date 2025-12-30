@@ -1,4 +1,7 @@
+import 'package:first_flutter_project01/models/daily_apod_state.dart';
+import 'package:first_flutter_project01/models/favorite_state.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'Pages/calendar_page.dart';
 import 'Pages/favorite_page.dart';
@@ -7,7 +10,17 @@ import 'Pages/screen_arguments.dart';
 import 'Pages/test_text_input_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) =>
+                  FavoriteState(),),
+            ChangeNotifierProvider(create: (context) =>
+                  DailyApodState(),),
+          ],
+      child:  const MyApp(),
+      )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -70,7 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(_pages[_selectedIndex]['title']),
         //backgroundColor: Colors.blue,
       ),
-      body: _pages[_selectedIndex]['widget'], // 會因為_selectedIndex的改變而切換頁面
+      body: Center( child: _pages[_selectedIndex]['widget'], // 會因為_selectedIndex的改變而切換頁面
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(

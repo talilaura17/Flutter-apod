@@ -4,8 +4,11 @@ class ApodData {
   final String mediaType;  // 圖片類型
   final String desc;  // 圖片描述
   final String date;  // 日期
+  String note = '';
+  bool isFavorite = false;
 
-  ApodData(this.title, this.url, this.mediaType, this.desc, this.date);
+  ApodData(this.title, this.url, this.mediaType, this.desc, this.date,
+      this.note, this.isFavorite);
 
   ApodData.fromJson(Map<String, dynamic> json)
       : title = (json['title'] as String?) ?? '',

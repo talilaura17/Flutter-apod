@@ -1,5 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
+
+import '../models/apod_data.dart';
+import '../models/favorite_state.dart';
 
 enum NoteType {
   text,
@@ -7,41 +11,45 @@ enum NoteType {
 }
 
 class AstroPicture extends StatefulWidget {
-  final String title; // 標題
-  final String pictureUrl; // 圖片來源
-  final String desc; // 圖片描述
-  final String note; // 手札
-  final bool isFavorite; // 是否收藏
+  final ApodData apodData;
 
-  const AstroPicture(
-      { super.key,
-        required this.title,
-        required this.pictureUrl,
-        required this.desc,
-        this.note = '', // 非必要，若沒有手札紀錄預設為空字串
-        this.isFavorite = false // 非必要，預設為非收藏的圖片
-      });
+  const AstroPicture({super.key, required this.apodData});
 
   @override
   State<AstroPicture> createState() => _AstroPictureState();
 }
 
 class _AstroPictureState extends State<AstroPicture> {
-  final String apodUrl = 'https://api.nasa.gov/planetary/apod';
-
   late final TextEditingController _controller = TextEditingController();
   NoteType _noteType = NoteType.editable;
+  bool _isFavorite = false;
 
   @override
   void initState() {
     super.initState();
-    _controller.text = widget.note;
+    _controller.text = widget.apodData.note;
   }
 
   @override
   void dispose(){
     _controller.dispose();
     super.dispose();
+  }
+
+  void addToFavorite(context, ApodData apodData){
+    apodData.isFavorite = true;
+    Provider.of<FavoriteState>(context, listen: false).addToList(apodData);
+
+    setState(() {
+      _isFavorite = true;
+    });
+  }
+  void removeFromFavorite(context, ApodData apodData) {
+    apodData.isFavorite = false;
+    Provider.of<FavoriteState>(context, listen: false).removeFromList(apodData);
+    setState(() {
+      _isFavorite = false;
+    });
   }
 
   @override
@@ -54,7 +62,7 @@ class _AstroPictureState extends State<AstroPicture> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              widget.title,
+              widget.apodData.title,
               style: const TextStyle(
                   fontSize: 30, fontWeight: FontWeight.w500),
             ),
@@ -63,8 +71,8 @@ class _AstroPictureState extends State<AstroPicture> {
             children: [
               SizedBox(
                 width: deviceScreen.width,
-                child: widget.pictureUrl.isNotEmpty
-                    ? Image.network(widget.pictureUrl, frameBuilder:
+                child: widget.apodData.url.isNotEmpty
+                    ? Image.network(widget.apodData.url, frameBuilder:
                     (context, child, frame, wasSynchronouslyLoaded) {
                   if (wasSynchronouslyLoaded) {
                     // 同步載入（快取）直接顯示
@@ -89,19 +97,30 @@ class _AstroPictureState extends State<AstroPicture> {
                         )),
                     ),
               ),
-              widget.pictureUrl.isNotEmpty
+              widget.apodData.url.isNotEmpty
               ? Positioned(
                 top: 10.0,
                 right: 10.0,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white24),
-                    onPressed: () {
-                      print('add to favorite');
-                    },
-                    child: widget.isFavorite
-                      ? Icon(Icons.favorite, color: Colors.pink[200])
-                        : const Icon(Icons.favorite_border_outlined, color: Colors.white)
-                ),
+                child: Consumer<FavoriteState>(
+                  builder: (context, fav, child){
+                    final isFav = fav.contains(widget.apodData.date);
+                    _isFavorite = isFav == true ? true : false;
+                    widget.apodData.isFavorite = _isFavorite;
+
+                    return ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.white24),
+                        onPressed: () {
+                          _isFavorite == false
+                              ? addToFavorite(context, widget.apodData)
+                              : removeFromFavorite(context, widget.apodData);
+                        },
+                        child: widget.apodData.isFavorite
+                            ? Icon(Icons.favorite, color: Colors.pink[200])
+                            : const Icon(Icons.favorite_border_outlined, color: Colors.white)
+                    );
+                  }
+                )
+
               )
               : Container(),
             ],
@@ -109,7 +128,7 @@ class _AstroPictureState extends State<AstroPicture> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              widget.desc,
+              widget.apodData.desc,
               style:
               const TextStyle(fontSize: 16, color: Colors.blueGrey),
             ),
@@ -170,6 +189,7 @@ class _AstroPictureState extends State<AstroPicture> {
                     onPressed: () {
                       setState(() {
                         _noteType = NoteType.text;
+                        widget.apodData.note = _controller.text;
                       });
                     },
                     child: const Icon(

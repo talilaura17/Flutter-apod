@@ -1,11 +1,14 @@
 // main_page.dart
 import 'dart:convert';
 
+import 'package:first_flutter_project01/models/daily_apod_state.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
+import '../api/constants.dart';
 import '../keys/api_key.dart';
-import '../models/ApodData.dart';
+import '../models/apod_data.dart';
 import '../widgets/astro_picture.dart';
 
 class MainPage extends StatefulWidget{
@@ -16,11 +19,11 @@ class MainPage extends StatefulWidget{
 }
 
 class _MainPageState extends State<MainPage> {
-  final String apodUrl = 'https://api.nasa.gov/planetary/apod';
+  bool _isLoading = false;
 
   @override
   void initState() {
-    _fetchDailyApodData(); // 在頁面生成時取得APOD 資訊
+    fetchDailyApodData(); // 在頁面生成時取得APOD 資訊
     super.initState();
   }
 
@@ -30,49 +33,33 @@ class _MainPageState extends State<MainPage> {
   }
 
   // 取得網路資料(使用api key)
-  Future<ApodData?> _fetchDailyApodData() async {
-    Uri url = Uri.parse('$apodUrl?api_key=$apiKey&thumbs=true');
-    final response = await http.get(url, headers: {
-      'Content-type': 'application/json',
-      'Accept': 'application/json',
+  void fetchDailyApodData() async {
+    setState(() {
+      _isLoading = true;
     });
 
-    final parsedResponse = json.decode(response.body) as Map<String, dynamic>;
-    return ApodData.fromJson(parsedResponse);
+    await Provider.of<DailyApodState>(context, listen: false).fetchDailyApodData();
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     Size deviceScreen = MediaQuery.of(context).size;
 
-    return SingleChildScrollView(
-      child: FutureBuilder(
-        future: _fetchDailyApodData(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            ApodData? data = snapshot.data;
-            //
-            return AstroPicture(
-              title: data?.title ?? '',
-              pictureUrl: data?.url ?? '',
-              desc: data?.desc ?? '',
-              note: 'Place your note here!', // 待日後將儲存的筆記放進來
-              isFavorite: false,
-            );
-          }
-          if (snapshot.hasError) {
-            return const Center(
-                child: Text(
-                  '頁面載入錯誤',
-                  style: TextStyle(color: Colors.red, fontSize: 30),
-                ));
-          }
-          return SizedBox(
-              height: deviceScreen.height,
-              width: deviceScreen.width,
-              child: const Center(child: CircularProgressIndicator()));
-        },
-      ),
-    );
+    return _isLoading
+        ? SizedBox(
+            height: deviceScreen.height,
+            width: deviceScreen.width,
+            child: const Center(child: CircularProgressIndicator()),
+          )
+        : Consumer<DailyApodState>(
+            builder: (context, dailyApodState, child){
+              return AstroPicture(apodData: dailyApodState.dailyApod);
+            }
+          );
+
   }
 }

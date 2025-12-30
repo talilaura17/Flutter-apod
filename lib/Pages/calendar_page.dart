@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:first_flutter_project01/models/ApodData.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import '../keys/api_key.dart';
 
+import '../models/apod_data.dart';
 import '../widgets/astro_picture.dart';
 import '../widgets/calendar_day_cell.dart';
 
@@ -19,12 +19,14 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
 
-  //DateTime _focusedDay = DateTime.now();
-  //DateTime _selectedDay = DateTime.now();
-  //DateTime current = DateTime.now();
-  DateTime _focusedDay = DateTime(2025,12,26);
-  DateTime _selectedDay = DateTime(2025,12,26);
-  DateTime current = DateTime(2025,12,26);
+  final DateTime today = DateTime.now();
+  late final DateTime safeEndDate = DateTime(today.year, today.month, today.day - 1);
+  late DateTime _focusedDay = safeEndDate;
+  late DateTime _selectedDay = safeEndDate;
+  late DateTime current = safeEndDate;
+  //DateTime _focusedDay = DateTime(2025,12,26);
+  //DateTime _selectedDay = DateTime(2025,12,26);
+  //DateTime current = DateTime(2025,12,26);
 
   bool _isLoading = false;
   final String apodUrl = 'https://api.nasa.gov/planetary/apod';
@@ -38,7 +40,8 @@ class _CalendarPageState extends State<CalendarPage> {
     _fetchDailyApodData(firstDayofMonth, formatDate(current));
   }
 
-  _fetchDailyApodData(String startDate, String endDate) async {
+  Future<void> _fetchDailyApodData(String startDate, String endDate) async {
+
     if(_dailyApodMap[startDate] != null && _dailyApodMap[endDate] != null){
       // 已經有前後時間的資料，代表當月都抓過了，不必再call api抓一次
       return;
@@ -63,8 +66,6 @@ class _CalendarPageState extends State<CalendarPage> {
     setState(() {
       _isLoading = false;
     });
-
-    print(_dailyApodMap[0]);
   }
 
   String formatDate(DateTime datetime) {
@@ -79,7 +80,7 @@ class _CalendarPageState extends State<CalendarPage> {
       : TableCalendar(
         headerStyle: const HeaderStyle(formatButtonVisible: false),
         firstDay: DateTime.utc(current.year - 2, 01, 01),
-        lastDay: DateTime(2025,12,26),
+        lastDay: safeEndDate,
         focusedDay: _focusedDay,
         selectedDayPredicate: (day) {
           return isSameDay(_selectedDay, day);
@@ -111,11 +112,13 @@ class _CalendarPageState extends State<CalendarPage> {
             return Scaffold(
               appBar: AppBar(title: Text(formatDate(selectedDay)),),
               body: AstroPicture(
-                  title: _dailyApodMap[date]?.title ?? '',
-                  pictureUrl: _dailyApodMap[date]?.url ?? '',
-                  desc: _dailyApodMap[date]?.desc ?? '',
-                  note: '',
-                  isFavorite: false
+                apodData: ApodData(_dailyApodMap[date]?.title ?? '',
+                                  _dailyApodMap[date]?.url ?? '',
+                                  _dailyApodMap[date]?.mediaType ?? '',
+                                  _dailyApodMap[date]?.desc ?? '',
+                                  _dailyApodMap[date]?.date ?? '',
+                                  '',
+                                  false)
               ),
             );
           }));

@@ -37,6 +37,9 @@ dependencies:
   http: ^1.6.0
   provider: ^6.1.5+1
   table_calendar: ^3.2.0
+  sqflite: ^2.4.2
+  path: ^1.9.1
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +51,17 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/sun.jpg"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+
+flutter_native_splash:
+  color: '#000000'
+  image: 'assets/moon.png' # 只能使用.png檔案喔！
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
