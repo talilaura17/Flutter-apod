@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:provider/provider.dart';
 
+import 'package:first_flutter_project01/models/viewed_date_state.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../keys/api_key.dart';
 
@@ -24,9 +27,6 @@ class _CalendarPageState extends State<CalendarPage> {
   late DateTime _focusedDay = safeEndDate;
   late DateTime _selectedDay = safeEndDate;
   late DateTime current = safeEndDate;
-  //DateTime _focusedDay = DateTime(2025,12,26);
-  //DateTime _selectedDay = DateTime(2025,12,26);
-  //DateTime current = DateTime(2025,12,26);
 
   bool _isLoading = false;
   final String apodUrl = 'https://api.nasa.gov/planetary/apod';
@@ -106,6 +106,7 @@ class _CalendarPageState extends State<CalendarPage> {
           });
         },
         onDayLongPressed: ((selectedDay, focusedDay) {
+          context.read<ViewedDateState>().markViewed(formatDate(selectedDay));
           String date = formatDate(focusedDay);
           // 長按日期時導向該日的天文圖片頁面
           Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -123,33 +124,57 @@ class _CalendarPageState extends State<CalendarPage> {
             );
           }));
         }),
-        calendarBuilders: CalendarBuilders(
+        calendarBuilders:
+        CalendarBuilders(
           defaultBuilder: (context, day, focusedDay) =>
-            Center(child: CalendarDayCell(
-              day: day,
-              hasDot: _dailyApodMap[formatDate(day)] != null,
-              dotColor: Colors.red,
-            )),
-          selectedBuilder: (context, day, focusedDay) => Center(
-            child: CalendarDayCell(
-              day: day,
-              decoration: BoxDecoration(
-                color: Colors.blue[300],
-                shape: BoxShape.circle,
-              ),
-              hasDot: _dailyApodMap[formatDate(day)] != null,
-              dotColor: Colors.red,
-            )),
-          todayBuilder: (context, day, focusedDay) => CalendarDayCell(
-            day: day,
-            decoration: BoxDecoration(
-              color: Colors.blue[100],
-              shape: BoxShape.circle,
+            Consumer<ViewedDateState>(
+                builder: (context, viewed, child){
+                  final isViewed = viewed.isViewed(formatDate(day));
+                  return
+                    Center(child: CalendarDayCell(
+                    day: day,
+                    hasDot: _dailyApodMap[formatDate(day)] != null,
+                    dotColor: isViewed ? Colors.green : Colors.red,
+                  ));
+                }
             ),
-            hasDot: _dailyApodMap[formatDate(day)] != null,
-            dotColor: Colors.red,
-          ),
-
-    )));
+          selectedBuilder: (context, day, focusedDay) =>
+              Consumer<ViewedDateState>(
+                  builder: (context, viewed, child){
+                    final isViewed = viewed.isViewed(formatDate(day));
+                    return
+                      Center(
+                        child: CalendarDayCell(
+                          day: day,
+                          decoration: BoxDecoration(
+                            color: Colors.blue[300],
+                            shape: BoxShape.circle,
+                          ),
+                      hasDot: _dailyApodMap[formatDate(day)] != null,
+                      dotColor: isViewed ? Colors.green : Colors.red,
+                    ));
+                  }
+              ),
+          todayBuilder: (context, day, focusedDay) =>
+              Consumer<ViewedDateState>(
+                builder: (context, viewed, child){
+                  final isViewed = viewed.isViewed(formatDate(day));
+                  return
+                    Center(
+                      child: CalendarDayCell(
+                        day: day,
+                        decoration: BoxDecoration(
+                          color: Colors.blue[100],
+                          shape: BoxShape.circle,
+                        ),
+                      hasDot: _dailyApodMap[formatDate(day)] != null,
+                      dotColor: isViewed ? Colors.green : Colors.red,
+                      ),
+                    );
+                }
+              )
+      )
+      )
+    );
   }
 }

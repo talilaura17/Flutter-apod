@@ -1,5 +1,6 @@
 import 'package:first_flutter_project01/models/daily_apod_state.dart';
 import 'package:first_flutter_project01/models/favorite_state.dart';
+import 'package:first_flutter_project01/models/viewed_date_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,8 @@ void main() {
                   FavoriteState(),),
             ChangeNotifierProvider(create: (context) =>
                   DailyApodState(),),
+            ChangeNotifierProvider(create: (context) =>
+                ViewedDateState(),),
           ],
       child:  const MyApp(),
       )

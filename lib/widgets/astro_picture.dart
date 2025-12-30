@@ -110,6 +110,7 @@ class _AstroPictureState extends State<AstroPicture> {
                     return ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.white24),
                         onPressed: () {
+
                           _isFavorite == false
                               ? addToFavorite(context, widget.apodData)
                               : removeFromFavorite(context, widget.apodData);
